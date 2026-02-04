@@ -42,6 +42,30 @@ export const createUser = (req, res) => {
 export const updateUser = (req, res) => {
     const { id } = req.params;
     const { name, email } = req.body;
+    const user = users.find(u => u.id === id);
+    if(!user){
+        return res.status(404).json({
+            success: false,
+            message: "User not found"
+        });
+    }
+    if(!name || !email){
+        return res.status(400).json({
+            success: false,
+            message: "Name and Email are required for full update"
+        });
+    }
+    user.name = name;
+    user.email = email;   
+    res.status(200).json({
+        success: true,
+        data: user
+    });
+}
+
+export const partialUpdate = (req, res) => {
+    const { id } = req.params;
+    const { name, email } = req.body;
 
     const user = users.find(u => u.id === id);
     if(!user){
