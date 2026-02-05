@@ -1,6 +1,9 @@
 import { users } from '../data/users.js';
-
+import { createUserService, updateUserService, deleteUserService } from '../services/user.services.js';
 export const getUsers = (req, res) => {
+    const token=req.headers;
+    console.log("token",token);
+    
     res.status(200).json({
         success: true,
         count: users.length,
@@ -11,21 +14,9 @@ export const getUsers = (req, res) => {
 export const createUser = (req, res) => {
     try{
         const { name, email } = req.body;
-        if(!name || !email){
-            return res.status(400).json({
-                success: false,
-                message: "Name and Email are required" 
-            });
-        }   
-
-        const newUser = {
-            id: Date.now().toString(),
-            name,
-            email
-        };
-
-        users.push(newUser);
-
+        console.log("user created");
+        
+        const newUser=createUserService(name, email);
         res.status(201).json({
             success: true,
             data: newUser
@@ -42,25 +33,20 @@ export const createUser = (req, res) => {
 export const updateUser = (req, res) => {
     const { id } = req.params;
     const { name, email } = req.body;
-    const user = users.find(u => u.id === id);
-    if(!user){
-        return res.status(404).json({
-            success: false,
-            message: "User not found"
-        });
-    }
-    if(!name || !email){
-        return res.status(400).json({
-            success: false,
-            message: "Name and Email are required for full update"
-        });
-    }
-    user.name = name;
-    user.email = email;   
-    res.status(200).json({
-        success: true,
-        data: user
+    console.log("update user function",name,email);
+    
+    const user = updateUserService(id, name, email);  
+    if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found"
     });
+  }
+  res.status(200).json({
+    success: true,
+    data: user
+  });
+    
 }
 
 export const partialUpdate = (req, res) => {
@@ -86,16 +72,17 @@ export const partialUpdate = (req, res) => {
 
 export const deleteUser = (req, res) => {
     const { id } = req.params;
-    const userIndex = users.findIndex(u => u.id === id);
-    if(userIndex === -1){
-        return res.status(404).json({
-            success: false,
-            message: "User not found"
-        });
-    }
-    users.splice(userIndex, 1);
-    res.status(200).json({
-        success: true,
-        message: "User deleted successfully"
+    const deleted = deleteUserService(id);
+     if (!deleted) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found"
     });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "User deleted successfully"
+  });
 }
+
